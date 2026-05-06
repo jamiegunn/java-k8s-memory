@@ -72,6 +72,7 @@ For the full picture, start with the [main guide](java-memory-k8s-guide.md).
 | [Incident Runbook](docs/incident-runbook.md) | Copy-paste triage commands for 2am pages |
 | [Advanced Considerations](docs/advanced-considerations.md) | Rancher specifics, virtual threads, GraalVM, cgroups |
 | [Change Management Checklist](docs/change-management-checklist.md) | Step-by-step process with verification commands |
+| [Developer Interview Questionnaire](docs/developer-interview-questionnaire.md) | Discovery template for gathering app context before sizing |
 
 ## Key Principles
 

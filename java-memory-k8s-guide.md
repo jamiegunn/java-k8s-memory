@@ -26,6 +26,10 @@
 15. [Spring Boot Memory Traps](docs/spring-boot-memory-traps.md)
 16. [Incident Runbook](docs/incident-runbook.md)
 
+### Process & Discovery
+
+17. [Developer Interview Questionnaire](docs/developer-interview-questionnaire.md)
+
 ---
 
 ## Overview
