@@ -64,6 +64,12 @@ For the full picture, start with the [main guide](java-memory-k8s-guide.md).
 | [Connection Pool Scaling](docs/connection-pool-scaling.md) | HikariCP sizing, PgBouncer, DB as a scaling ceiling |
 | [Spring Boot Memory Traps](docs/spring-boot-memory-traps.md) | Caches, JPA contexts, thread pools, metaspace bloat |
 
+### Deep Dives
+
+| Document | Description |
+|:---------|:------------|
+| [Why Not Autoscale Java on Memory](docs/why-not-autoscale-java-on-memory.md) | Why memory-based HPA fails for Java, what to scale on instead |
+
 ### Troubleshooting & Process
 
 | Document | Description |

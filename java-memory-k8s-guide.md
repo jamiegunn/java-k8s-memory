@@ -26,9 +26,13 @@
 15. [Spring Boot Memory Traps](docs/spring-boot-memory-traps.md)
 16. [Incident Runbook](docs/incident-runbook.md)
 
+### Deep Dives
+
+17. [Why Not Autoscale Java on Memory](docs/why-not-autoscale-java-on-memory.md)
+
 ### Process & Discovery
 
-17. [Developer Interview Questionnaire](docs/developer-interview-questionnaire.md)
+18. [Developer Interview Questionnaire](docs/developer-interview-questionnaire.md)
 
 ---
 
@@ -171,7 +175,7 @@ flowchart TD
 
 1. **Never hardcode `-Xmx` in the Dockerfile** — use `MaxRAMPercentage` and control memory at the K8s layer
 2. **Set `requests.memory == limits.memory`** for Java apps — gives Guaranteed QoS class
-3. **Do not autoscale on memory** for Java — the JVM doesn't release heap; scale on CPU or request rate
+3. **[Do not autoscale on memory](docs/why-not-autoscale-java-on-memory.md)** for Java — the JVM doesn't release heap; scale on CPU or request rate
 4. **Prove the need first** — use Prometheus metrics to validate that heap pressure justifies the increase
 5. **Account for non-heap** — the JVM uses 25-30% more memory than the heap alone
 6. **Monitor RSS, not just heap** — the kernel OOM killer sees RSS, not JVM heap usage
