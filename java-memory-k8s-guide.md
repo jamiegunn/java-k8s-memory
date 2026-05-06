@@ -18,6 +18,14 @@
 10. [Advanced Considerations](docs/advanced-considerations.md)
 11. [Change Management Checklist](docs/change-management-checklist.md)
 
+### Production Operations
+
+12. [Graceful Shutdown & Connection Draining](docs/graceful-shutdown.md)
+13. [JVM Warmup](docs/jvm-warmup.md)
+14. [Connection Pool Scaling](docs/connection-pool-scaling.md)
+15. [Spring Boot Memory Traps](docs/spring-boot-memory-traps.md)
+16. [Incident Runbook](docs/incident-runbook.md)
+
 ---
 
 ## Overview
