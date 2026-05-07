@@ -1,6 +1,10 @@
-# Java + Kubernetes Memory Guide
+# Java + Kubernetes Operations Guide
 
-A comprehensive, opinionated guide for Java (Spring Boot) engineers who need to right-size, deploy, monitor, and scale JVM applications in Kubernetes — particularly in Rancher-managed clusters.
+A comprehensive, opinionated knowledge base for Java (Spring Boot) engineers deploying to Kubernetes — covering JVM tuning, container configuration, observability, infrastructure, and operational process.
+
+**19 documents** | **Mermaid diagrams throughout** | **Copy-paste ready commands and manifests**
+
+---
 
 ## Who This Is For
 
@@ -9,82 +13,94 @@ A comprehensive, opinionated guide for Java (Spring Boot) engineers who need to 
 - SREs responsible for Java services in production
 - Anyone who has been OOMKilled and wants to understand why
 
-## The Problem This Solves
-
-Increasing Java heap from 3GB to 6GB sounds simple — just change `-Xmx`, right? In reality, it touches the JVM memory model, container configuration, Kubernetes scheduling, autoscaling behavior, CI/CD pipelines, monitoring thresholds, and incident response. This guide covers the full lifecycle.
+---
 
 ## Quick Start
-
-If you just need the answer:
 
 ```bash
 # JVM flags (set via environment variable in K8s)
 JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=75.0 -XX:+UseG1GC"
+```
 
+```yaml
 # Container resources (requests == limits for Guaranteed QoS)
 resources:
   requests:
     memory: "8Gi"
   limits:
     memory: "8Gi"
+```
 
-# The formula
+```
 Container Limit = Desired Heap / 0.75
 ```
 
-For the full picture, start with the [main guide](java-memory-k8s-guide.md).
+For the full picture, start with the [Main Guide](java-memory-k8s-guide.md).
 
-## Guide Structure
+---
 
-### Core Concepts
+## Topic Index
 
-| Document | Description |
-|:---------|:------------|
-| [Main Guide](java-memory-k8s-guide.md) | Overview, navigation, and key principles |
-| [JVM Memory Model](docs/jvm-memory-model.md) | Heap, non-heap, and why the JVM uses more memory than `-Xmx` |
-| [Container-Aware JVM Config](docs/container-configuration.md) | Flags, GC selection, percentage-based sizing |
-| [Dockerfile Best Practices](docs/dockerfile-best-practices.md) | Multi-stage builds, base images, security |
+### JVM & Java
 
-### Kubernetes & Deployment
+| # | Topic | Document | Key Content |
+|:-:|:------|:---------|:------------|
+| 1 | JVM Memory Model | [jvm-memory-model.md](docs/jvm-memory-model.md) | Heap vs non-heap, generation lifecycle, the critical formula (`heap / 0.75 = container limit`), NMT verification |
+| 2 | Container-Aware JVM Config | [container-configuration.md](docs/container-configuration.md) | `-XX:MaxRAMPercentage`, GC selection (G1/ZGC/Shenandoah), Java version container support, `JAVA_TOOL_OPTIONS` |
+| 3 | JVM Warmup | [jvm-warmup.md](docs/jvm-warmup.md) | JIT compilation phases, warmup scripts, AppCDS, readiness gating, HPA oscillation from cold pods |
+| 4 | Spring Boot Memory Traps | [spring-boot-memory-traps.md](docs/spring-boot-memory-traps.md) | Unbounded `@Cacheable`, JPA persistence context leaks, session memory, CGLIB proxies, `@Async` thread explosion, high-cardinality metrics |
 
-| Document | Description |
-|:---------|:------------|
-| [Kubernetes Resources](docs/kubernetes-resources.md) | Requests, limits, QoS classes, probes |
-| [Autoscaling](docs/autoscaling.md) | HPA, VPA, KEDA — and why NOT to scale Java on memory |
-| [CI/CD with GitHub Actions](docs/cicd-github-actions.md) | Build pipeline, memory smoke tests, rollback |
-| [Capacity Planning](docs/capacity-planning.md) | Load testing, right-sizing, cost analysis |
+### Containers & Docker
 
-### Production Operations
+| # | Topic | Document | Key Content |
+|:-:|:------|:---------|:------------|
+| 5 | Dockerfile Best Practices | [dockerfile-best-practices.md](docs/dockerfile-best-practices.md) | Multi-stage builds, base image selection, layer caching, why NOT to hardcode `-Xmx`, security scanning |
 
-| Document | Description |
-|:---------|:------------|
-| [Monitoring & Metrics](docs/monitoring-metrics.md) | Actuator, Prometheus, Grafana, alert rules |
-| [Graceful Shutdown](docs/graceful-shutdown.md) | Connection draining, `preStop` hooks, SIGTERM handling |
-| [JVM Warmup](docs/jvm-warmup.md) | JIT compilation, cold-start latency, warmup strategies |
-| [Connection Pool Scaling](docs/connection-pool-scaling.md) | HikariCP sizing, PgBouncer, DB as a scaling ceiling |
-| [Spring Boot Memory Traps](docs/spring-boot-memory-traps.md) | Caches, JPA contexts, thread pools, metaspace bloat |
+### Kubernetes
+
+| # | Topic | Document | Key Content |
+|:-:|:------|:---------|:------------|
+| 6 | Resource Configuration | [kubernetes-resources.md](docs/kubernetes-resources.md) | Requests vs limits, QoS classes, CPU throttling, probes (startup/liveness/readiness), PDB, `kubectl` commands |
+| 7 | Autoscaling | [autoscaling.md](docs/autoscaling.md) | HPA, VPA, KEDA, behavior tuning, Prometheus Adapter, scale-down cooldowns for Java |
+| 8 | Graceful Shutdown | [graceful-shutdown.md](docs/graceful-shutdown.md) | `preStop` hooks, Spring `server.shutdown=graceful`, SIGTERM race condition, timing budget, rolling update coordination |
+
+### Observability
+
+| # | Topic | Document | Key Content |
+|:-:|:------|:---------|:------------|
+| 9 | Monitoring & Metrics | [monitoring-metrics.md](docs/monitoring-metrics.md) | Spring Actuator setup, Prometheus alert rules, Grafana panels, PromQL queries, JFR recording, `jcmd` diagnostics |
+| 10 | Troubleshooting | [troubleshooting.md](docs/troubleshooting.md) | Decision trees for OOMKill, slow pods, startup failures, GC issues, CPU throttling |
+
+### CI/CD & Deployment
+
+| # | Topic | Document | Key Content |
+|:-:|:------|:---------|:------------|
+| 11 | CI/CD with GitHub Actions | [cicd-github-actions.md](docs/cicd-github-actions.md) | Full pipeline (build, test, smoke test, deploy, validate, rollback), Helm values per environment, PR resource change detection |
+| 12 | Capacity Planning | [capacity-planning.md](docs/capacity-planning.md) | Right-sizing process, k6 load testing, A/B config comparison, cost analysis, node capacity verification |
 
 ### Deep Dives
 
-| Document | Description |
-|:---------|:------------|
-| [Why Not Autoscale Java on Memory](docs/why-not-autoscale-java-on-memory.md) | Why memory-based HPA fails for Java, what to scale on instead |
+| # | Topic | Document | Key Content |
+|:-:|:------|:---------|:------------|
+| 13 | Why Not Autoscale Java on Memory | [why-not-autoscale-java-on-memory.md](docs/why-not-autoscale-java-on-memory.md) | JVM memory lifecycle, 3 HPA failure scenarios, what to scale on instead (CPU, RPS, latency, queue depth) |
+| 14 | Connection Pool Scaling | [connection-pool-scaling.md](docs/connection-pool-scaling.md) | HikariCP sizing formula, PgBouncer in K8s, cascade failure from HPA x pool size, Redis/HTTP pool sizing |
+| 15 | Advanced Considerations | [advanced-considerations.md](docs/advanced-considerations.md) | Rancher specifics, virtual threads (Java 21), GraalVM native image, cgroup v1 vs v2, sidecar memory, node pressure |
 
 ### Supporting Infrastructure
 
-| Document | Description |
-|:---------|:------------|
-| [Operationally Ready Valkey](docs/valkey-production-guide.md) | Production Valkey (Redis-compatible) on K8s — Helm chart, replication, auth, TLS, monitoring, Spring Boot integration |
+| # | Topic | Document | Key Content |
+|:-:|:------|:---------|:------------|
+| 16 | Operationally Ready Valkey | [valkey-production-guide.md](docs/valkey-production-guide.md) | Helm chart production values, replication mode, ACL auth, TLS, persistence (AOF+RDB), Prometheus alerts, backup/restore, Spring Boot integration |
 
-### Troubleshooting & Process
+### Process & Runbooks
 
-| Document | Description |
-|:---------|:------------|
-| [Troubleshooting](docs/troubleshooting.md) | Decision trees for OOMKill, slow pods, startup failures |
-| [Incident Runbook](docs/incident-runbook.md) | Copy-paste triage commands for 2am pages |
-| [Advanced Considerations](docs/advanced-considerations.md) | Rancher specifics, virtual threads, GraalVM, cgroups |
-| [Change Management Checklist](docs/change-management-checklist.md) | Step-by-step process with verification commands |
-| [Developer Interview Questionnaire](docs/developer-interview-questionnaire.md) | Discovery template for gathering app context before sizing |
+| # | Topic | Document | Key Content |
+|:-:|:------|:---------|:------------|
+| 17 | Incident Runbook | [incident-runbook.md](docs/incident-runbook.md) | 5 copy-paste runbooks (OOMKill, GC pauses, startup failure, memory leak, emergency increase), escalation matrix, post-incident template |
+| 18 | Change Management Checklist | [change-management-checklist.md](docs/change-management-checklist.md) | 5-phase process (validate, plan, test, deploy, monitor), pre/post-deploy verification commands, rollback procedure |
+| 19 | Developer Interview Questionnaire | [developer-interview-questionnaire.md](docs/developer-interview-questionnaire.md) | 8-section discovery template, red flag identification, sizing recommendation template, decision framework flowchart |
+
+---
 
 ## Key Principles
 
@@ -94,6 +110,29 @@ For the full picture, start with the [main guide](java-memory-k8s-guide.md).
 4. **[Prove the need before increasing](docs/capacity-planning.md)** — use [metrics](docs/monitoring-metrics.md) to validate heap pressure
 5. **[Account for non-heap](docs/jvm-memory-model.md)** — the JVM uses 25-30% more memory than the heap alone
 6. **Container limit = heap / 0.75** — the [formula](docs/jvm-memory-model.md#the-critical-formula) that prevents OOMKills
+
+---
+
+## By Situation
+
+Not sure where to start? Find your scenario:
+
+| I need to... | Start here |
+|:-------------|:-----------|
+| Understand why my pod is OOMKilled | [Troubleshooting](docs/troubleshooting.md) → [Incident Runbook](docs/incident-runbook.md) |
+| Increase Java heap from 3GB to 6GB | [JVM Memory Model](docs/jvm-memory-model.md) → [Change Management Checklist](docs/change-management-checklist.md) |
+| Set up monitoring for a Java app | [Monitoring & Metrics](docs/monitoring-metrics.md) |
+| Configure autoscaling correctly | [Why Not Memory](docs/why-not-autoscale-java-on-memory.md) → [Autoscaling](docs/autoscaling.md) |
+| Deploy Valkey (Redis) for caching/sessions | [Valkey Production Guide](docs/valkey-production-guide.md) |
+| Interview a dev about their app's memory needs | [Developer Interview Questionnaire](docs/developer-interview-questionnaire.md) |
+| Build a CI/CD pipeline with memory validation | [CI/CD with GitHub Actions](docs/cicd-github-actions.md) |
+| Fix slow performance after deployment | [JVM Warmup](docs/jvm-warmup.md) → [Troubleshooting](docs/troubleshooting.md) |
+| Right-size a new Java service for K8s | [JVM Memory Model](docs/jvm-memory-model.md) → [Container Config](docs/container-configuration.md) → [K8s Resources](docs/kubernetes-resources.md) |
+| Investigate a suspected memory leak | [Spring Boot Memory Traps](docs/spring-boot-memory-traps.md) → [Incident Runbook](docs/incident-runbook.md) |
+| Scale without breaking database connections | [Connection Pool Scaling](docs/connection-pool-scaling.md) |
+| Prepare for a production deployment | [Change Management Checklist](docs/change-management-checklist.md) |
+
+---
 
 ## Prerequisites
 
@@ -106,7 +145,7 @@ For the full picture, start with the [main guide](java-memory-k8s-guide.md).
 
 ## Diagrams
 
-All documents use [Mermaid](https://mermaid.js.org/) for diagrams. These render natively on GitHub and in most modern Markdown viewers. If they appear as code blocks, use a Mermaid-compatible viewer or browser extension.
+All documents use [Mermaid](https://mermaid.js.org/) for diagrams. These render natively on GitHub and in most modern Markdown viewers.
 
 ## Contributing
 
@@ -114,6 +153,8 @@ All documents use [Mermaid](https://mermaid.js.org/) for diagrams. These render 
 - Validate Mermaid diagrams render correctly on GitHub
 - Keep `kubectl` commands up to date with current API versions
 - When adding new documents, update both [java-memory-k8s-guide.md](java-memory-k8s-guide.md) TOC and this README
+
+---
 
 ## References
 
@@ -125,7 +166,7 @@ All documents use [Mermaid](https://mermaid.js.org/) for diagrams. These render 
 - [Spring Boot Actuator Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html)
 - [Micrometer Prometheus Registry](https://micrometer.io/docs/registry/prometheus)
 
-### Helm Charts
+### Helm Charts & Infrastructure
 
 - [Valkey Helm Chart (valkey-io/valkey-helm)](https://github.com/valkey-io/valkey-helm)
 - [Valkey Documentation](https://valkey.io/docs/)
@@ -145,6 +186,8 @@ All documents use [Mermaid](https://mermaid.js.org/) for diagrams. These render 
 - [HikariCP — About Pool Sizing](https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing)
 - [Google SRE — Handling Overload](https://sre.google/sre-book/handling-overload/)
 - [Kubernetes — Pod Disruption Budgets](https://kubernetes.io/docs/tasks/run-application/configure-pdb/)
+
+---
 
 ## License
 
