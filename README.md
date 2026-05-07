@@ -70,6 +70,12 @@ For the full picture, start with the [main guide](java-memory-k8s-guide.md).
 |:---------|:------------|
 | [Why Not Autoscale Java on Memory](docs/why-not-autoscale-java-on-memory.md) | Why memory-based HPA fails for Java, what to scale on instead |
 
+### Supporting Infrastructure
+
+| Document | Description |
+|:---------|:------------|
+| [Operationally Ready Valkey](docs/valkey-production-guide.md) | Production Valkey (Redis-compatible) on K8s — Helm chart, replication, auth, TLS, monitoring, Spring Boot integration |
+
 ### Troubleshooting & Process
 
 | Document | Description |

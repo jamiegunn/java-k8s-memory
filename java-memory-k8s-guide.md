@@ -30,6 +30,10 @@
 
 17. [Why Not Autoscale Java on Memory](docs/why-not-autoscale-java-on-memory.md)
 
+### Supporting Infrastructure
+
+18. [Operationally Ready Valkey on Kubernetes](docs/valkey-production-guide.md)
+
 ### Process & Discovery
 
 18. [Developer Interview Questionnaire](docs/developer-interview-questionnaire.md)
