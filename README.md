@@ -88,12 +88,12 @@ For the full picture, start with the [main guide](java-memory-k8s-guide.md).
 
 ## Key Principles
 
-1. **Never hardcode `-Xmx` in the Dockerfile** — use `MaxRAMPercentage` and control memory at the K8s layer
-2. **Set `requests.memory == limits.memory`** — gives Guaranteed QoS (last to be evicted)
-3. **Do not autoscale on memory** — the JVM doesn't release heap; scale on CPU or request rate
-4. **Prove the need before increasing** — use metrics to validate heap pressure
-5. **Account for non-heap** — the JVM uses 25-30% more memory than the heap alone
-6. **Container limit = heap / 0.75** — the formula that prevents OOMKills
+1. **[Never hardcode `-Xmx` in the Dockerfile](docs/dockerfile-best-practices.md)** — use [`MaxRAMPercentage`](docs/container-configuration.md) and control memory at the K8s layer
+2. **[Set `requests.memory == limits.memory`](docs/kubernetes-resources.md)** — gives Guaranteed QoS (last to be evicted)
+3. **[Do not autoscale on memory](docs/why-not-autoscale-java-on-memory.md)** — the JVM doesn't release heap; scale on CPU or request rate
+4. **[Prove the need before increasing](docs/capacity-planning.md)** — use [metrics](docs/monitoring-metrics.md) to validate heap pressure
+5. **[Account for non-heap](docs/jvm-memory-model.md)** — the JVM uses 25-30% more memory than the heap alone
+6. **Container limit = heap / 0.75** — the [formula](docs/jvm-memory-model.md#the-critical-formula) that prevents OOMKills
 
 ## Prerequisites
 
@@ -114,6 +114,37 @@ All documents use [Mermaid](https://mermaid.js.org/) for diagrams. These render 
 - Validate Mermaid diagrams render correctly on GitHub
 - Keep `kubectl` commands up to date with current API versions
 - When adding new documents, update both [java-memory-k8s-guide.md](java-memory-k8s-guide.md) TOC and this README
+
+## References
+
+### Official Documentation
+
+- [Oracle JVM Tuning Guide (Java 21)](https://docs.oracle.com/en/java/javase/21/gctuning/)
+- [Kubernetes — Managing Resources for Containers](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
+- [Kubernetes — Horizontal Pod Autoscaling](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)
+- [Spring Boot Actuator Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html)
+- [Micrometer Prometheus Registry](https://micrometer.io/docs/registry/prometheus)
+
+### Helm Charts
+
+- [Valkey Helm Chart (valkey-io/valkey-helm)](https://github.com/valkey-io/valkey-helm)
+- [Valkey Documentation](https://valkey.io/docs/)
+
+### Tools
+
+- [Eclipse Temurin JDK (Adoptium)](https://adoptium.net/)
+- [Prometheus](https://prometheus.io/)
+- [Grafana](https://grafana.com/)
+- [HikariCP](https://github.com/brettwooldridge/HikariCP)
+- [k6 Load Testing](https://k6.io/)
+- [Eclipse MAT (Memory Analyzer)](https://eclipse.dev/mat/)
+- [Redis Exporter for Prometheus](https://github.com/oliver006/redis_exporter)
+
+### Related Reading
+
+- [HikariCP — About Pool Sizing](https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing)
+- [Google SRE — Handling Overload](https://sre.google/sre-book/handling-overload/)
+- [Kubernetes — Pod Disruption Budgets](https://kubernetes.io/docs/tasks/run-application/configure-pdb/)
 
 ## License
 
